@@ -85,9 +85,10 @@ Sp_Mode:   2     ; Speech mode\r\n\
                  ;   2 = Glide ratio\r\n\
                  ;   3 = Inverse glide ratio\r\n\
                  ;   4 = Total speed\r\n\
+                 ;   5 = Altitude\r\n\
 Sp_Units:  1     ; Speech units\r\n\
-                 ;   0 = km/h\r\n\
-                 ;   1 = mph\r\n\
+                 ;   0 = km/h / meters\r\n\
+                 ;   1 = mph / feet\r\n\
 Sp_Rate:   0     ; Speech rate (s)\r\n\
                  ;   0 = No speech\r\n\
 Sp_Dec:    0     ; Decimal places for speech\r\n\

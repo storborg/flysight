@@ -764,6 +764,8 @@ static void UBX_SpeakValue(
 	case 4: // Total speed
 		UBX_speech_ptr = Log_WriteInt32ToBuf(UBX_speech_ptr, (current->speed * 1024) / speed_mul, 2, 1, 0);
 		break;
+    case 5: // Altitude (should be a noop, handled in a separate function)
+        break;
 	}
 	
 	// Step 2: Truncate to the desired number of decimal places
@@ -780,12 +782,64 @@ static void UBX_SpeakValue(
 	case 2: // Glide ratio
 	case 3: // Inverse glide ratio
 	case 4: // Total speed
+    case 5: // Altitude
 		break;
 	}
 	
 	// Step 4: Terminate with a null
 
 	*(end_ptr++) = 0;
+}
+
+static void UBX_UpdateDytter(
+	UBX_saved_t *current)
+{
+
+    uint16_t elev = 0;
+    uint16_t roundedElev = 0;
+	char *end_ptr;
+
+    if (UBX_sp_mode != 5)
+        return;
+
+    // Calculate altitude in preferred units
+	switch (UBX_sp_units)
+	{
+	case UBX_UNITS_KMH:
+        // Convert from mm to thousands of meters (multiply by 1024 for fixed point)
+        elev = ((current->hMSL - UBX_dzElev) * 1024) / 1024000;
+		break;
+	case UBX_UNITS_MPH:
+        // Convert from mm to thousands of feet (multiply by 1024 for fixed point)
+        elev = ((current->hMSL - UBX_dzElev) * 1024) / 312115;
+		break;
+	}
+
+	if (UBX_prevFix)
+	{
+        // Round altitude to nearest 1,000 (feet/meters), always rounding up
+        // (we don't want to skip an altitude announcement)
+        roundedElev = (elev + 1000 - 1) / 1000 * 1000;
+
+        // We should speak altitude only if we've just crossed a 1,000 foot
+        // marker since the last sample.
+        // Check if the previous MSL was above the rounded elevation and the
+        // current one is below.
+
+        if (elev <= roundedElev && UBX_prevHMSL > roundedElev)
+        {
+            UBX_speech_ptr = UBX_speech_buf + sizeof(UBX_speech_buf) - 1;
+            end_ptr = UBX_speech_ptr;
+
+            UBX_speech_ptr = Log_WriteInt32ToBuf(UBX_speech_ptr, roundedElev, 2, 1, 0);
+
+            // Truncate to remove the last 3 digits, so 7,000 feet is just "7".
+            end_ptr -= 3;
+
+            // Add null terminator.
+            *(end_ptr++) = 0;
+		}
+	}
 }
 
 static void UBX_UpdateAlarms(
@@ -932,6 +986,7 @@ static void UBX_ReceiveMessage(
 
 			UBX_UpdateAlarms(current);
 			UBX_UpdateTones(current);
+			UBX_UpdateDytter(current);
 
 			if (!Log_IsInitialized())
 			{
