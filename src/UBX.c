@@ -797,6 +797,7 @@ static void UBX_UpdateDytter(
 
     uint16_t elev = 0;
     uint16_t roundedElev = 0;
+    uint16_t prevElev = 0;
 	char *end_ptr;
 
     if (UBX_sp_mode != 5)
@@ -808,10 +809,12 @@ static void UBX_UpdateDytter(
 	case UBX_UNITS_KMH:
         // Convert from mm to thousands of meters (multiply by 1024 for fixed point)
         elev = ((current->hMSL - UBX_dzElev) * 1024) / 1024000;
+        prevElev = ((UBX_prevHMSL - UBX_dzElev) * 1024) / 1024000;
 		break;
 	case UBX_UNITS_MPH:
         // Convert from mm to thousands of feet (multiply by 1024 for fixed point)
         elev = ((current->hMSL - UBX_dzElev) * 1024) / 312115;
+        prevElev = ((UBX_prevHMSL - UBX_dzElev) * 1024) / 312115;
 		break;
 	}
 
@@ -829,7 +832,7 @@ static void UBX_UpdateDytter(
         // Check if the previous MSL was above the rounded elevation and the
         // current one is below.
 
-        if ((elev <= roundedElev) && (UBX_prevHMSL > roundedElev))
+        if ((elev <= roundedElev) && (prevElev > roundedElev))
         {
             UBX_speech_ptr = Log_WriteInt32ToBuf(UBX_speech_ptr, roundedElev, 0, 0, 0);
 
