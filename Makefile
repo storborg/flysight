@@ -66,3 +66,9 @@ version.txt:
 
 $(TARGET).size.txt: $(TARGET).elf
 	$(CROSS)-size --mcu=$(MCU) --format=avr $< > $@
+
+erase:
+	sudo dfu-programmer $(MCU) erase
+
+flash: erase
+	sudo dfu-programmer $(MCU) flash $(TARGET).hex
