@@ -815,6 +815,9 @@ static void UBX_UpdateDytter(
 		break;
 	}
 
+    UBX_speech_ptr = UBX_speech_buf + sizeof(UBX_speech_buf) - 1;
+    end_ptr = UBX_speech_ptr;
+
 	if (UBX_prevFix)
 	{
         // Round altitude to nearest 1,000 (feet/meters), always rounding up
@@ -826,20 +829,18 @@ static void UBX_UpdateDytter(
         // Check if the previous MSL was above the rounded elevation and the
         // current one is below.
 
-        if (elev <= roundedElev && UBX_prevHMSL > roundedElev)
+        if ((elev <= roundedElev) && (UBX_prevHMSL > roundedElev))
         {
-            UBX_speech_ptr = UBX_speech_buf + sizeof(UBX_speech_buf) - 1;
-            end_ptr = UBX_speech_ptr;
+            UBX_speech_ptr = Log_WriteInt32ToBuf(UBX_speech_ptr, roundedElev, 0, 0, 0);
 
-            UBX_speech_ptr = Log_WriteInt32ToBuf(UBX_speech_ptr, roundedElev, 2, 1, 0);
-
-            // Truncate to remove the last 3 digits, so 7,000 feet is just "7".
+            // Truncate to remove the last 3 digits, so 7000 feet is just "7".
             end_ptr -= 3;
-
-            // Add null terminator.
-            *(end_ptr++) = 0;
 		}
 	}
+
+    // Add null terminator.
+    *(end_ptr++) = 0;
+
 }
 
 static void UBX_UpdateAlarms(
