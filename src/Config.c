@@ -193,7 +193,6 @@ void Config_Read(void)
 	char    *result;
 	
 	int32_t val;
-	int32_t dz_elev = 0;
 
 	FRESULT res;
 	
@@ -260,7 +259,7 @@ void Config_Read(void)
 		HANDLE_VALUE(Config_H_Thresh,  UBX_hThreshold,   val, TRUE);
 		HANDLE_VALUE(Config_Use_SAS,   UBX_use_sas,      val, val == 0 || val == 1);
 		HANDLE_VALUE(Config_Window,    UBX_alarm_window, val * 1000, TRUE);
-		HANDLE_VALUE(Config_DZ_Elev,   dz_elev,          val * 1000, TRUE);
+		HANDLE_VALUE(Config_DZ_Elev,   UBX_dzElev,       val * 1000, TRUE);
 		HANDLE_VALUE(Config_TZ_Offset, Log_tz_offset,    val, TRUE);
 		HANDLE_VALUE(Config_Init_Mode, UBX_init_mode,    val, val >= 0 && val <= 2);
 		
@@ -274,7 +273,7 @@ void Config_Read(void)
 		if (!strcmp_P(name, Config_Alarm_Elev))
 		{
 			++UBX_num_alarms;
-			UBX_alarms[UBX_num_alarms - 1].elev = val * 1000 + dz_elev;
+			UBX_alarms[UBX_num_alarms - 1].elev = val * 1000 + UBX_dzElev;
 			UBX_alarms[UBX_num_alarms - 1].type = 0;
 			UBX_alarms[UBX_num_alarms - 1].filename[0] = '\0';
 		}

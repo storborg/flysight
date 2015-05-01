@@ -246,6 +246,8 @@ uint8_t  UBX_sp_units      = UBX_UNITS_MPH;
 uint16_t UBX_sp_rate       = 0;
 uint8_t  UBX_sp_decimals   = 0;
 
+int32_t  UBX_dzElev        = 0;
+
 uint8_t  UBX_init_mode     = 0;
 char     UBX_init_filename[9];
 

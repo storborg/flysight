@@ -40,6 +40,8 @@ extern uint8_t   UBX_sp_units;
 extern uint16_t  UBX_sp_rate;
 extern uint8_t   UBX_sp_decimals;
 
+extern int32_t   UBX_dzElev;
+
 extern uint8_t   UBX_init_mode;
 extern char      UBX_init_filename[9];
 
